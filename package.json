@@ -8,7 +8,7 @@
   },
   "devDependencies": {
     "@actions/core": "^1.2.6",
-    "@vercel/ncc": "^0.28.2"},
+    "@vercel/ncc": "^0.33.3"},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "ncc build index.js"
