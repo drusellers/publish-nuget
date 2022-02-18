@@ -85,7 +85,7 @@ class Action {
         core.info(`Generated Package(s): ${packages.join(", ")}`)
 
         packages.forEach(nupkg => {
-            const pushCmd = `dotnet nuget push ${nupkg} -s ${this.nugetSource}/v3/index.json -k ${this.nugetKey} --skip-duplicate ${!this.includeSymbols ? "-n" : ""}`
+            const pushCmd = `dotnet nuget push ${nupkg} -s ${this.nugetSource}/v3/index.json -k ${this.nugetKey} --skip-duplicate ${!this.includeSymbols ? "--no-symbols" : ""}`
             const pushOutput = this._executeCommand(pushCmd, { encoding: "utf-8" }).stdout    
             console.log(pushOutput)
 
