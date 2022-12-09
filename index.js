@@ -54,7 +54,7 @@ class Action {
         this._executeInProcess(`git tag ${TAG}`)
         this._executeInProcess(`git push origin ${TAG}`)
 
-        process.stdout.write(`::set-output name=VERSION::${TAG}` + os.EOL)
+        core.setOutput("VERSION", TAG)
     }
 
     _generatePackArgs() {
@@ -86,22 +86,22 @@ class Action {
 
         packages.forEach(nupkg => {
             const pushCmd = `dotnet nuget push ${nupkg} -s ${this.nugetSource}/v3/index.json -k ${this.nugetKey} --skip-duplicate ${!this.includeSymbols ? "--no-symbols" : ""}`
-            const pushOutput = this._executeCommand(pushCmd, { encoding: "utf-8" }).stdout    
+            const pushOutput = this._executeCommand(pushCmd, { encoding: "utf-8" }).stdout
             console.log(pushOutput)
 
             if (/error/.test(pushOutput))
                 this._printErrorAndExit(`${/error.*/.exec(pushOutput)[0]}`)
         })
-        
+
         const packageFilename = packages.filter(p => p.endsWith(".nupkg"))[0],
             symbolsFilename = packages.filter(p => p.endsWith(".snupkg"))[0]
 
-        process.stdout.write(`::set-output name=package-name::${packageFilename}` + os.EOL)
-        process.stdout.write(`::set-output name=package-path::${path.resolve(packageFilename)}` + os.EOL)
+        core.setOutput("package-name", packageFilename)
+        core.setOutput("package-path", path.resolve(packageFilename))
 
         if (symbolsFilename) {
-            process.stdout.write(`::set-output name=symbols-package-name::${symbolsFilename}` + os.EOL)
-            process.stdout.write(`::set-output name=symbols-package-path::${path.resolve(symbolsFilename)}` + os.EOL)
+            core.setOutput("symbols-package-name", symbolsFilename)
+            core.setOutput("symbols-package-path", path.resolve(symbolsFilename))
         }
 
         if (this.tagCommit)
@@ -118,10 +118,10 @@ class Action {
         https.get(`${this.nugetSource}/v3-flatcontainer/${this.packageName}/index.json`, res => {
             let body = ""
 
-            if (res.statusCode == 404)
+            if (res.statusCode === 404)
                 this._pushPackage(this.version, this.packageName)
 
-            if (res.statusCode == 200) {
+            if (res.statusCode === 200) {
                 res.setEncoding("utf8")
                 res.on("data", chunk => body += chunk)
                 res.on("end", () => {
